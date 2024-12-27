@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Рандомайзер Фильмов</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #3a0d0d, #1f0d0d);
+            font-family: 'Inter', sans-serif;
+        }
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: scale(0.9); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        @keyframes slideIn {
+            0% { transform: translateX(-100%); opacity: 0; }
+            100% { transform: translateX(0); opacity: 1; }
+        }
+        .animate-fade {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        .animate-slide {
+            animation: slideIn 0.7s ease-in-out;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center text-white">
+    <div class="w-full max-w-md p-6 bg-black rounded-xl shadow-xl">
+        <h1 class="text-3xl font-bold text-center mb-4">🎥 Рандомайзер Фильмов</h1>
+        <p class="text-center text-gray-400 mb-6">Не можете выбрать, что посмотреть? Давайте решим за вас!</p>
+
+        <div class="mb-4">
+            <label for="genreSelect" class="block text-sm font-medium text-gray-400 mb-2">Выберите жанр:</label>
+            <select id="genreSelect" class="w-full py-2 px-3 rounded-md bg-gray-900 text-gray-300 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500">
+                <option value="all">Все жанры</option>
+                <option value="action">Боевик</option>
+                <option value="drama">Драма</option>
+                <option value="comedy">Комедия</option>
+                <option value="sci-fi">Фантастика</option>
+                <option value="thriller">Триллер</option>
+                <option value="horror">Ужасы</option>
+                <option value="crime">Криминал</option>
+                <option value="adventure">Приключения</option>
+                <option value="war">Военный</option>
+                <option value="mystery">Детектив</option>
+            </select>
+        </div>
+
+        <div id="movieDisplay" class="mb-6 text-center text-lg font-medium text-red-400">Нажмите кнопку, чтобы получить случайный фильм!</div>
+
+        <button id="randomizeButton" 
+            class="w-full py-3 px-4 bg-red-900 hover:bg-red-900 rounded-lg text-lg font-semibold transition duration-300">
+            Выбрать фильм
+        </button>
+
+        <div class="mt-8 text-center">
+            <p class="text-sm text-gray-400">Хотите добавить свои фильмы?</p>
+            <input 
+                type="text" 
+                id="movieInput" 
+                placeholder="Добавить фильм..." 
+                class="mt-2 w-full py-2 px-3 rounded-md bg-gray-900 text-gray-300 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500">
+            <button 
+                id="addMovieButton" 
+                class="mt-3 w-full py-2 bg-red-900 hover:bg-red-900 rounded-md font-semibold transition duration-300">
+                Добавить фильм
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const movieDisplay = document.getElementById('movieDisplay');
+        const randomizeButton = document.getElementById('randomizeButton');
+        const movieInput = document.getElementById('movieInput');
+        const addMovieButton = document.getElementById('addMovieButton');
+        const genreSelect = document.getElementById('genreSelect');
+
+        let movies = [
+        { title: "Начало", genre: "sci-fi" },
+            { title: "Матрица", genre: "sci-fi" },
+            { title: "Интерстеллар", genre: "sci-fi" },
+            { title: "Крёстный отец", genre: "drama" },
+            { title: "Криминальное чтиво", genre: "crime" },
+            { title: "Тёмный рыцарь", genre: "action" },
+            { title: "Форрест Гамп", genre: "drama" },
+            { title: "Бойцовский клуб", genre: "drama" },
+            { title: "Достучаться до небес", genre: "action" },
+            { title: "Мальчик в полосатой пижаме", genre: "drama" },
+            { title: "Олдбой", genre: "thriller" },
+            { title: "Ла-Ла Ленд", genre: "drama" },
+            { title: "Охота", genre: "drama" },
+            { title: "Мементо", genre: "thriller" },
+            { title: "Оно", genre: "horror" },
+            { title: "Маяк", genre: "horror" },
+            { title: "Хатико", genre: "drama" },
+            { title: "Последний клиент", genre: "mystery" },
+            { title: "Донни Дарко", genre: "thriller" },
+            { title: "На игле", genre: "crime" },
+            { title: "Реквием по мечте", genre: "horror" },
+            { title: "Брат", genre: "crime" },
+            { title: "На западном фронте без перемен", genre: "war" },
+            { title: "Враг", genre: "thriller" },
+            { title: "Иди и смотри", genre: "war" },
+            { title: "Пленницы", genre: "thriller" },
+            { title: "Гладиатор", genre: "action" },
+            { title: "Список Шиндлера", genre: "war" },
+            { title: "Таксист", genre: "crime" },
+            { title: "Разрушение", genre: "comedy" },
+            { title: "Красота по-американски", genre: "comedy" },
+            { title: "Супер Перцы", genre: "comedy" },
+            { title: "Останься", genre: "thriller" },
+            { title: "Семь", genre: "crime" },
+            { title: "Зелёная миля", genre: "crime" },
+            { title: "Слон", genre: "thriller" },
+            { title: "Полу-Нельсон", genre: "drama" },
+            { title: "Бесславные ублюдки", genre: "adventure" },
+            { title: "Восьмая миля", genre: "drama" },
+            { title: "Убить Билла 2 части", genre: "action" },
+            { title: "Старикам тут не место", genre: "adventure" },
+            { title: "Одержимость", genre: "drama" },
+            { title: "Убойные каникулы", genre: "comedy" },
+            { title: "Морпехи", genre: "war" },
+            { title: "Общество мёртвых поэтов", genre: "drama" },
+            { title: "Загадочная кожа", genre: "drama" },
+            { title: "Первобытный страх", genre: "crime" }
+        ];
+
+        randomizeButton.addEventListener('click', () => {
+            const selectedGenre = genreSelect.value;
+            const filteredMovies = selectedGenre === 'all' ? movies : movies.filter(movie => movie.genre === selectedGenre);
+
+            if (filteredMovies.length === 0) {
+                movieDisplay.textContent = "Нет фильмов для выбранного жанра! Добавьте фильмы.";
+                return;
+            }
+
+            const randomIndex = Math.floor(Math.random() * filteredMovies.length);
+            movieDisplay.textContent = `🎬 ${filteredMovies[randomIndex].title}`;
+            movieDisplay.classList.add('animate-fade');
+            setTimeout(() => movieDisplay.classList.remove('animate-fade'), 500);
+        });
+
+        addMovieButton.addEventListener('click', () => {
+            const newMovieTitle = movieInput.value.trim();
+            const selectedGenre = genreSelect.value;
+
+            if (newMovieTitle && selectedGenre !== 'all') {
+                movies.push({ title: newMovieTitle, genre: selectedGenre });
+                movieInput.value = '';
+                movieDisplay.textContent = `Добавлено: "${newMovieTitle}" в жанр ${selectedGenre}`;
+            } else if (!newMovieTitle) {
+                movieDisplay.textContent = "Пожалуйста, введите название фильма.";
+            } else {
+                movieDisplay.textContent = "Пожалуйста, выберите жанр для фильма.";
+            }
+        });
+
+        surpriseButton.addEventListener('click', () => {
+            surpriseMessage.classList.remove('hidden');
+            surpriseMessage.classList.add('animate-fade');
+            setTimeout(() => surpriseMessage.classList.remove('animate-fade'), 500);
+        });
+    </script>
+</body>
+</html>
